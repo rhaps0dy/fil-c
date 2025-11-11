@@ -44,6 +44,12 @@ mv ../yolo/lib/crti.o .
 mv ../yolo/lib/crtn.o .
 mv ../yolo/lib/rcrt1.o .
 mv ../yolo/lib/Scrt1.o .
+
+# Decompress debug sections for lld compatibility
+for f in crt1.o crti.o crtn.o rcrt1.o Scrt1.o; do
+    objcopy --decompress-debug-sections "$f" "$f.tmp" && mv "$f.tmp" "$f"
+done
+
 rm -f libyolom.a
 ar cr libyolom.a
 ln -fs libyoloc.so ld-yolo-x86_64.so
