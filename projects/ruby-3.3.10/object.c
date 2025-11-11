@@ -3325,7 +3325,7 @@ rb_bool_expected(VALUE obj, const char *flagname, int raise)
       case (uintptr_t)Qfalse:
         return FALSE;
       default: {
-        static const char message[] = "expected true or false as %s: %"PRIsVALUE;
+        static const char message[] = "expected true or false as %s: %+"PRIsVALUE;
         if (raise) {
             rb_raise(rb_eArgError, message, flagname, obj);
         }

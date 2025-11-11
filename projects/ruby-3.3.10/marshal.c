@@ -1608,7 +1608,7 @@ r_symreal(struct load_arg *arg, int ivar)
     if (idx > 0) {
         rb_enc_associate_index(s, idx);
         if (is_broken_string(s)) {
-            rb_raise(rb_eArgError, "invalid byte sequence in %s: %"PRIsVALUE,
+            rb_raise(rb_eArgError, "invalid byte sequence in %s: %+"PRIsVALUE,
                      rb_enc_name(rb_enc_from_index(idx)), s);
         }
     }

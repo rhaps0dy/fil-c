@@ -1107,8 +1107,8 @@ ruby__sfvextra(rb_printf_buffer *fp, size_t valsize, void *valp, long *sz, int s
     if (sign == '+') {
 # define LITERAL(str) (*sz = rb_strlen_lit(str), str)
         /* optimize special const cases */
-        switch (value) {
-# define LITERAL_CASE(x) case Q##x: return LITERAL(#x)
+        switch ((uintptr_t)value) {
+# define LITERAL_CASE(x) case (uintptr_t)Q##x: return LITERAL(#x)
           LITERAL_CASE(nil);
           LITERAL_CASE(true);
           LITERAL_CASE(false);

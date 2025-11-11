@@ -1932,9 +1932,9 @@ get_nd_args(struct parser_params *p, NODE *node)
 } tIDENTIFIER tFID tGVAR tIVAR tCONSTANT tCVAR tLABEL tOP_ASGN
 %printer {
 #ifndef RIPPER
-    rb_parser_printf(p, "%"PRIsVALUE, RNODE_LIT($$)->nd_lit);
+    rb_parser_printf(p, "%+"PRIsVALUE, RNODE_LIT($$)->nd_lit);
 #else
-    rb_parser_printf(p, "%"PRIsVALUE, get_value($$));
+    rb_parser_printf(p, "%+"PRIsVALUE, get_value($$));
 #endif
 } tINTEGER tFLOAT tRATIONAL tIMAGINARY tSTRING_CONTENT tCHAR
 %printer {
@@ -8785,7 +8785,7 @@ dedent_string(struct parser_params *p, VALUE string, int width)
     rb_str_modify(string);
     str = RSTRING_PTR(string);
     if (RSTRING_LEN(string) != len)
-        rb_fatal("literal string changed: %"PRIsVALUE, string);
+        rb_fatal("literal string changed: %+"PRIsVALUE, string);
     MEMMOVE(str, str + i, char, len - i);
     rb_str_set_len(string, len - i);
     return i;
@@ -14619,7 +14619,7 @@ remove_duplicate_keys(struct parser_params *p, NODE *hash)
                  st_delete(literal_keys, (key = (st_data_t)RNODE_LIT(head)->nd_lit, &key), &data)) {
             NODE *dup_value = (RNODE_LIST((NODE *)data))->nd_next;
             rb_compile_warn(p->ruby_sourcefile, nd_line((NODE *)data),
-                            "key %"PRIsVALUE" is duplicated and overwritten on line %d",
+                            "key %+"PRIsVALUE" is duplicated and overwritten on line %d",
                             RNODE_LIT(head)->nd_lit, nd_line(head));
             if (dup_value == last_expr) {
                 RNODE_LIST(value)->nd_head = block_append(p, RNODE_LIST(dup_value)->nd_head, RNODE_LIST(value)->nd_head);

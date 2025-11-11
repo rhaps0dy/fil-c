@@ -25,6 +25,7 @@
  */
 
 #include "ruby/internal/config.h"
+#include <stdfil.h>
 
 #ifdef STDC_HEADERS
 # include <stddef.h>            /* size_t */

@@ -2285,7 +2285,7 @@ rb_io_writev(VALUE io, int argc, const VALUE *argv)
             VALUE klass = CLASS_OF(io);
             char sep = FL_TEST(klass, FL_SINGLETON) ? (klass = io, '.') : '#';
             rb_category_warning(
-                RB_WARN_CATEGORY_DEPRECATED, "%"PRIsVALUE"%c""write is outdated interface"
+                RB_WARN_CATEGORY_DEPRECATED, "%+"PRIsVALUE"%c""write is outdated interface"
                 " which accepts just one argument",
                 klass, sep
             );
@@ -10860,7 +10860,7 @@ advice_arg_check(VALUE advice)
         advice != sym_willneed &&
         advice != sym_dontneed &&
         advice != sym_noreuse) {
-        rb_raise(rb_eNotImpError, "Unsupported advice: %"PRIsVALUE, advice);
+        rb_raise(rb_eNotImpError, "Unsupported advice: %+"PRIsVALUE, advice);
     }
 }
 

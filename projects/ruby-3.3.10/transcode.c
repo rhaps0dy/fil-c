@@ -581,12 +581,12 @@ transcode_restartable0(const unsigned char **in_pos, unsigned char **out_pos,
         next_byte = (unsigned char)*in_p++;
       follow_byte:
         if (next_byte < BL_MIN_BYTE || BL_MAX_BYTE < next_byte)
-            next_info = INVALID;
+            next_info = (VALUE)INVALID;
         else {
             next_info = (VALUE)BL_ACTION(next_byte);
         }
       follow_info:
-        switch (next_info & 0x1F) {
+        switch ((uintptr_t)next_info & 0x1F) {
           case NOMAP:
             {
                 const unsigned char *p = inchar_start;
@@ -616,33 +616,33 @@ transcode_restartable0(const unsigned char **in_pos, unsigned char **out_pos,
           case ZERObt: /* drop input */
             continue;
           case ONEbt:
-            SUSPEND_OBUF(9); *out_p++ = getBT1(next_info);
+              SUSPEND_OBUF(9); *out_p++ = getBT1((uintptr_t)next_info);
             continue;
           case TWObt:
-            SUSPEND_OBUF(10); *out_p++ = getBT1(next_info);
-            SUSPEND_OBUF(21); *out_p++ = getBT2(next_info);
+            SUSPEND_OBUF(10); *out_p++ = getBT1((uintptr_t)next_info);
+            SUSPEND_OBUF(21); *out_p++ = getBT2((uintptr_t)next_info);
             continue;
           case THREEbt:
-            SUSPEND_OBUF(11); *out_p++ = getBT1(next_info);
-            SUSPEND_OBUF(15); *out_p++ = getBT2(next_info);
-            SUSPEND_OBUF(16); *out_p++ = getBT3(next_info);
+            SUSPEND_OBUF(11); *out_p++ = getBT1((uintptr_t)next_info);
+            SUSPEND_OBUF(15); *out_p++ = getBT2((uintptr_t)next_info);
+            SUSPEND_OBUF(16); *out_p++ = getBT3((uintptr_t)next_info);
             continue;
           case FOURbt:
-            SUSPEND_OBUF(12); *out_p++ = getBT0(next_info);
-            SUSPEND_OBUF(17); *out_p++ = getBT1(next_info);
-            SUSPEND_OBUF(18); *out_p++ = getBT2(next_info);
-            SUSPEND_OBUF(19); *out_p++ = getBT3(next_info);
+            SUSPEND_OBUF(12); *out_p++ = getBT0((uintptr_t)next_info);
+            SUSPEND_OBUF(17); *out_p++ = getBT1((uintptr_t)next_info);
+            SUSPEND_OBUF(18); *out_p++ = getBT2((uintptr_t)next_info);
+            SUSPEND_OBUF(19); *out_p++ = getBT3((uintptr_t)next_info);
             continue;
           case GB4bt:
-            SUSPEND_OBUF(29); *out_p++ = getGB4bt0(next_info);
-            SUSPEND_OBUF(30); *out_p++ = getGB4bt1(next_info);
-            SUSPEND_OBUF(31); *out_p++ = getGB4bt2(next_info);
-            SUSPEND_OBUF(32); *out_p++ = getGB4bt3(next_info);
+            SUSPEND_OBUF(29); *out_p++ = getGB4bt0((uintptr_t)next_info);
+            SUSPEND_OBUF(30); *out_p++ = getGB4bt1((uintptr_t)next_info);
+            SUSPEND_OBUF(31); *out_p++ = getGB4bt2((uintptr_t)next_info);
+            SUSPEND_OBUF(32); *out_p++ = getGB4bt3((uintptr_t)next_info);
             continue;
           case STR1:
             tc->output_index = 0;
-            while (tc->output_index < STR1_LENGTH(BYTE_ADDR(STR1_BYTEINDEX(next_info)))) {
-                SUSPEND_OBUF(28); *out_p++ = BYTE_ADDR(STR1_BYTEINDEX(next_info))[1+tc->output_index];
+            while (tc->output_index < STR1_LENGTH(BYTE_ADDR(STR1_BYTEINDEX((uintptr_t)next_info)))) {
+                SUSPEND_OBUF(28); *out_p++ = BYTE_ADDR(STR1_BYTEINDEX((uintptr_t)next_info))[1+tc->output_index];
                 tc->output_index++;
             }
             continue;

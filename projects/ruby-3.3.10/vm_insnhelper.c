@@ -431,7 +431,7 @@ vm_pop_frame(rb_execution_context_t *ec, rb_control_frame_t *cfp, const VALUE *e
     RUBY_VM_CHECK_INTS(ec);
     ec->cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp);
 
-    return flags & VM_FRAME_FLAG_FINISH;
+    return (uintptr_t)flags & VM_FRAME_FLAG_FINISH;
 }
 
 void
@@ -449,7 +449,7 @@ rb_vm_push_frame_fname(rb_execution_context_t *ec, VALUE fname)
 
     vm_push_frame(ec,
                   dmy_iseq, //const rb_iseq_t *iseq,
-                  VM_FRAME_MAGIC_DUMMY | VM_ENV_FLAG_LOCAL | VM_FRAME_FLAG_FINISH, // VALUE type,
+                  (VALUE)(VM_FRAME_MAGIC_DUMMY | VM_ENV_FLAG_LOCAL | VM_FRAME_FLAG_FINISH), // VALUE type,
                   ec->cfp->self, // VALUE self,
                   VM_BLOCK_HANDLER_NONE, // VALUE specval,
                   Qfalse, // VALUE cref_or_me,
@@ -503,7 +503,7 @@ static inline void
 vm_env_write(const VALUE *ep, int index, VALUE v)
 {
     VALUE flags = ep[VM_ENV_DATA_INDEX_FLAGS];
-    if (LIKELY((flags & VM_ENV_FLAG_WB_REQUIRED) == 0)) {
+    if (LIKELY(((uintptr_t)flags & VM_ENV_FLAG_WB_REQUIRED) == 0)) {
         VM_STACK_ENV_WRITE(ep, index, v);
     }
     else {
@@ -1058,14 +1058,14 @@ vm_get_ev_const(rb_execution_context_t *ec, VALUE orig_klass, ID id, bool allow_
                     if (UNDEF_P(val)) {
                         if (am == klass) break;
                         am = klass;
-                        if (is_defined) return 1;
+                        if (is_defined) return (VALUE)1;
                         if (rb_autoloading_value(klass, id, &av, NULL)) return av;
                         rb_autoload_load(klass, id);
                         goto search_continue;
                     }
                     else {
                         if (is_defined) {
-                            return 1;
+                            return (VALUE)1;
                         }
                         else {
                             if (UNLIKELY(!rb_ractor_main_p())) {
@@ -1090,7 +1090,7 @@ vm_get_ev_const(rb_execution_context_t *ec, VALUE orig_klass, ID id, bool allow_
         }
 
         if (is_defined) {
-            return rb_const_defined(klass, id);
+            return (VALUE)rb_const_defined(klass, id);
         }
         else {
             return rb_const_get(klass, id);
@@ -1099,7 +1099,7 @@ vm_get_ev_const(rb_execution_context_t *ec, VALUE orig_klass, ID id, bool allow_
     else {
         vm_check_if_namespace(orig_klass);
         if (is_defined) {
-            return rb_public_const_defined_from(orig_klass, id);
+            return (VALUE)rb_public_const_defined_from(orig_klass, id);
         }
         else {
             return rb_public_const_get_from(orig_klass, id);
@@ -1312,7 +1312,7 @@ vm_getivar(VALUE obj, ID id, const rb_iseq_t *iseq, IVC ic, const struct rb_call
               }
             }
 
-            if (!table || !st_lookup(table, id, &val)) {
+            if (!table || !st_lookup(table, (st_data_t)id, &val)) {
                 val = default_value;
             }
         }
@@ -1712,7 +1712,7 @@ vm_throw_start(const rb_execution_context_t *ec, rb_control_frame_t *const reg_c
             while (escape_cfp < eocfp) {
                 if (escape_cfp->ep == ep) {
                     const rb_iseq_t *const iseq = escape_cfp->iseq;
-                    const VALUE epc = escape_cfp->pc - ISEQ_BODY(iseq)->iseq_encoded;
+                    const VALUE epc = (VALUE)(escape_cfp->pc - ISEQ_BODY(iseq)->iseq_encoded);
                     const struct iseq_catch_table *const ct = ISEQ_BODY(iseq)->catch_table;
                     unsigned int i;
 
@@ -2303,8 +2303,8 @@ FIXNUM_2_P(VALUE a, VALUE b)
     /* FIXNUM_P(a) && FIXNUM_P(b)
      * == ((a & 1) && (b & 1))
      * == a & b & 1 */
-    SIGNED_VALUE x = a;
-    SIGNED_VALUE y = b;
+    SIGNED_VALUE x = (SIGNED_VALUE)a;
+    SIGNED_VALUE y = (SIGNED_VALUE)b;
     SIGNED_VALUE z = x & y & 1;
     return z == 1;
 }
@@ -2317,8 +2317,8 @@ FLONUM_2_P(VALUE a, VALUE b)
      * == ((a & 3) == 2) && ((b & 3) == 2)
      * == ! ((a ^ 2) | (b ^ 2) & 3)
      */
-    SIGNED_VALUE x = a;
-    SIGNED_VALUE y = b;
+    SIGNED_VALUE x = (SIGNED_VALUE)a;
+    SIGNED_VALUE y = (SIGNED_VALUE)b;
     SIGNED_VALUE z = ((x ^ 2) | (y ^ 2)) & 3;
     return !z;
 #else
@@ -3081,7 +3081,7 @@ vm_call_iseq_setup_normal(rb_execution_context_t *ec, rb_control_frame_t *cfp, s
     VALUE *sp = argv + param_size;
     cfp->sp = argv - 1 /* recv */;
 
-    vm_push_frame(ec, iseq, VM_FRAME_MAGIC_METHOD | VM_ENV_FLAG_LOCAL, calling->recv,
+    vm_push_frame(ec, iseq, (VALUE)(VM_FRAME_MAGIC_METHOD | VM_ENV_FLAG_LOCAL), calling->recv,
                   calling->block_handler, (VALUE)me,
                   ISEQ_BODY(iseq)->iseq_encoded + opt_pc, sp,
                   local_size - param_size,
@@ -3099,7 +3099,7 @@ vm_call_iseq_setup_tailcall(rb_execution_context_t *ec, rb_control_frame_t *cfp,
     const rb_iseq_t *iseq = def_iseq_ptr(me->def);
     VALUE *src_argv = argv;
     VALUE *sp_orig, *sp;
-    VALUE finish_flag = VM_FRAME_FINISHED_P(cfp) ? VM_FRAME_FLAG_FINISH : 0;
+    uintptr_t finish_flag = VM_FRAME_FINISHED_P(cfp) ? VM_FRAME_FLAG_FINISH : 0;
 
     if (VM_BH_FROM_CFP_P(calling->block_handler, cfp)) {
         struct rb_captured_block *dst_captured = VM_CFP_TO_CAPTURED_BLOCK(RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp));
@@ -3127,7 +3127,7 @@ vm_call_iseq_setup_tailcall(rb_execution_context_t *ec, rb_control_frame_t *cfp,
         *sp++ = src_argv[i];
     }
 
-    vm_push_frame(ec, iseq, VM_FRAME_MAGIC_METHOD | VM_ENV_FLAG_LOCAL | finish_flag,
+vm_push_frame(ec, iseq, (VALUE)(VM_FRAME_MAGIC_METHOD | VM_ENV_FLAG_LOCAL | finish_flag),
                   calling->recv, calling->block_handler, (VALUE)me,
                   ISEQ_BODY(iseq)->iseq_encoded + opt_pc, sp,
                   ISEQ_BODY(iseq)->local_table_size - ISEQ_BODY(iseq)->param.size,
@@ -3473,7 +3473,7 @@ vm_call_cfunc_with_frame_(rb_execution_context_t *ec, rb_control_frame_t *reg_cf
 
     VALUE recv = calling->recv;
     VALUE block_handler = calling->block_handler;
-    VALUE frame_type = VM_FRAME_MAGIC_CFUNC | VM_FRAME_FLAG_CFRAME | VM_ENV_FLAG_LOCAL;
+    uintptr_t frame_type = VM_FRAME_MAGIC_CFUNC | VM_FRAME_FLAG_CFRAME | VM_ENV_FLAG_LOCAL;
 
     if (UNLIKELY(calling->kw_splat)) {
         frame_type |= VM_FRAME_FLAG_CFRAME_KW;
@@ -3484,7 +3484,7 @@ vm_call_cfunc_with_frame_(rb_execution_context_t *ec, rb_control_frame_t *reg_cf
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(ec, me->owner, me->def->original_id);
     EXEC_EVENT_HOOK(ec, RUBY_EVENT_C_CALL, recv, me->def->original_id, vm_ci_mid(ci), me->owner, Qundef);
 
-    vm_push_frame(ec, NULL, frame_type, recv,
+    vm_push_frame(ec, NULL, (VALUE)frame_type, recv,
                   block_handler, (VALUE)me,
                   0, ec->cfp->sp, 0, 0);
 
@@ -3740,7 +3740,7 @@ vm_call_iseq_bmethod(rb_execution_context_t *ec, rb_control_frame_t *cfp, struct
     cfp->sp = argv - 1; // -1 for the receiver
 
     vm_push_frame(ec, iseq,
-                  VM_FRAME_MAGIC_BLOCK | VM_FRAME_FLAG_BMETHOD | VM_FRAME_FLAG_LAMBDA,
+                  (VALUE)(VM_FRAME_MAGIC_BLOCK | VM_FRAME_FLAG_BMETHOD | VM_FRAME_FLAG_LAMBDA),
                   calling->recv,
                   VM_GUARDED_PREV_EP(captured->ep),
                   (VALUE)cme,
@@ -4780,7 +4780,7 @@ vm_yield_with_cfunc(rb_execution_context_t *ec,
     }
 
     vm_push_frame(ec, (const rb_iseq_t *)captured->code.ifunc,
-                  frame_flag,
+                  (VALUE)frame_flag,
                   self,
                   VM_GUARDED_PREV_EP(captured->ep),
                   (VALUE)me,
@@ -4905,7 +4905,7 @@ vm_invoke_iseq_block(rb_execution_context_t *ec, rb_control_frame_t *reg_cfp,
     SET_SP(rsp);
 
     vm_push_frame(ec, iseq,
-                  VM_FRAME_MAGIC_BLOCK | (is_lambda ? VM_FRAME_FLAG_LAMBDA : 0),
+                  (VALUE)(VM_FRAME_MAGIC_BLOCK | (is_lambda ? VM_FRAME_FLAG_LAMBDA : 0)),
                   captured->self,
                   VM_GUARDED_PREV_EP(captured->ep), 0,
                   ISEQ_BODY(iseq)->iseq_encoded + opt_pc,
@@ -5850,7 +5850,7 @@ vm_ic_track_const_chain(rb_control_frame_t *cfp, IC ic, const ID *segments)
 
 // For RJIT inlining
 static inline bool
-vm_inlined_ic_hit_p(VALUE flags, VALUE value, const rb_cref_t *ic_cref, const VALUE *reg_ep)
+vm_inlined_ic_hit_p(uintptr_t flags, VALUE value, const rb_cref_t *ic_cref, const VALUE *reg_ep)
 {
     if ((flags & IMEMO_CONST_CACHE_SHAREABLE) || rb_ractor_main_p()) {
         VM_ASSERT(ractor_incidental_shareable_p(flags & IMEMO_CONST_CACHE_SHAREABLE, value));
@@ -6282,7 +6282,7 @@ vm_opt_and(VALUE recv, VALUE obj)
     // will be 1 on both.  1 & 1 == 1, so the result value will also
     // be a fixnum.  If either side is *not* a fixnum, then the tag bit
     // will be 0, and we return Qundef.
-    VALUE ret = ((SIGNED_VALUE) recv) & ((SIGNED_VALUE) obj);
+    VALUE ret = (VALUE)(((SIGNED_VALUE) recv) & ((SIGNED_VALUE) obj));
 
     if (FIXNUM_P(ret) &&
         BASIC_OP_UNREDEFINED_P(BOP_AND, INTEGER_REDEFINED_OP_FLAG)) {
@@ -6298,7 +6298,7 @@ vm_opt_or(VALUE recv, VALUE obj)
 {
     if (FIXNUM_2_P(recv, obj) &&
         BASIC_OP_UNREDEFINED_P(BOP_OR, INTEGER_REDEFINED_OP_FLAG)) {
-        return recv | obj;
+        return (VALUE)((uintptr_t)recv | (uintptr_t)obj);
     }
     else {
         return Qundef;
@@ -6419,9 +6419,9 @@ vm_opt_length(VALUE recv, int bop)
 static VALUE
 vm_opt_empty_p(VALUE recv)
 {
-    switch (vm_opt_length(recv, BOP_EMPTY_P)) {
-      case Qundef: return Qundef;
-      case INT2FIX(0): return Qtrue;
+    switch ((uintptr_t)vm_opt_length(recv, BOP_EMPTY_P)) {
+      case (uintptr_t)Qundef: return Qundef;
+      case (uintptr_t)INT2FIX(0): return Qtrue;
       default: return Qfalse;
     }
 }
@@ -6446,12 +6446,12 @@ vm_opt_nil_p(const rb_iseq_t *iseq, CALL_DATA cd, VALUE recv)
 static VALUE
 fix_succ(VALUE x)
 {
-    switch (x) {
-      case ~0UL:
+    switch ((uintptr_t)x) {
+      case (uintptr_t)~0UL:
         /* 0xFFFF_FFFF == INT2FIX(-1)
          * `-1.succ` is of course 0. */
         return INT2FIX(0);
-      case RSHIFT(~0UL, 1):
+      case (uintptr_t)RSHIFT(~0UL, 1):
         /* 0x7FFF_FFFF == LONG2FIX(0x3FFF_FFFF)
          * 0x3FFF_FFFF + 1 == 0x4000_0000, which is a Bignum. */
         return rb_uint2big(1UL << (SIZEOF_LONG * CHAR_BIT - 2));

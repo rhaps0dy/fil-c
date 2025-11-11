@@ -1715,11 +1715,11 @@ ec_str_alloc_heap(struct rb_execution_context_struct *ec, VALUE klass)
 static inline VALUE
 str_duplicate_setup(VALUE klass, VALUE str, VALUE dup)
 {
-    const VALUE flag_mask =
+    const uintptr_t flag_mask =
         ENC_CODERANGE_MASK | ENCODING_MASK |
         FL_FREEZE
         ;
-    VALUE flags = FL_TEST_RAW(str, flag_mask);
+    uintptr_t flags = FL_TEST_RAW(str, flag_mask);
     int encidx = 0;
     if (STR_EMBED_P(str)) {
         long len = RSTRING_LEN(str);
@@ -5242,10 +5242,10 @@ rb_str_aref(VALUE str, VALUE indx)
     else {
         /* check if indx is Range */
         long beg, len = str_strlen(str, NULL);
-        switch (rb_range_beg_len(indx, &beg, &len, len, 0)) {
-          case Qfalse:
+        switch ((uintptr_t)rb_range_beg_len(indx, &beg, &len, len, 0)) {
+          case (uintptr_t)Qfalse:
             break;
-          case Qnil:
+          case (uintptr_t)Qnil:
             return Qnil;
           default:
             return rb_str_substr(str, beg, len);
@@ -5624,10 +5624,10 @@ rb_str_slice_bang(int argc, VALUE *argv, VALUE str)
         goto squash;
     }
     else {
-        switch (rb_range_beg_len(indx, &beg, &len, str_strlen(str, NULL), 0)) {
-          case Qnil:
+        switch ((uintptr_t)rb_range_beg_len(indx, &beg, &len, str_strlen(str, NULL), 0)) {
+          case (uintptr_t)Qnil:
             return Qnil;
-          case Qfalse:
+          case (uintptr_t)Qfalse:
             beg = NUM2LONG(indx);
             if (!(p = rb_str_subpos(str, beg, &len))) return Qnil;
             if (!len) return Qnil;
@@ -6265,10 +6265,10 @@ str_byte_aref(VALUE str, VALUE indx)
         /* check if indx is Range */
         long beg, len = RSTRING_LEN(str);
 
-        switch (rb_range_beg_len(indx, &beg, &len, len, 0)) {
-          case Qfalse:
+        switch ((uintptr_t)rb_range_beg_len(indx, &beg, &len, len, 0)) {
+          case (uintptr_t)Qfalse:
             break;
-          case Qnil:
+          case (uintptr_t)Qnil:
             return Qnil;
           default:
             return str_byte_substr(str, beg, len, TRUE);
@@ -9046,7 +9046,7 @@ rb_str_enumerate_lines(int argc, VALUE *argv, VALUE str, VALUE ary)
             keywords[0] = rb_intern_const("chomp");
         }
         rb_get_kwargs(opts, keywords, 0, 1, &chomp);
-        chomp = (!UNDEF_P(chomp) && RTEST(chomp));
+        chomp = (VALUE)(!UNDEF_P(chomp) && RTEST(chomp));
     }
 
     if (NIL_P(rs)) {

@@ -2482,7 +2482,7 @@ string_to_r_strict(VALUE self, int raise)
     num = parse_rat(RSTRING_PTR(self), RSTRING_END(self), 1, raise);
     if (NIL_P(num)) {
         if (!raise) return Qnil;
-        rb_raise(rb_eArgError, "invalid value for convert(): %"PRIsVALUE,
+        rb_raise(rb_eArgError, "invalid value for convert(): %+"PRIsVALUE,
                  self);
     }
 

@@ -1547,7 +1547,7 @@ check_order_keyword(VALUE opt)
             else if (id == id_top) order = Qfalse;
             else {
                 rb_raise(rb_eArgError, "expected :top or :bottom as "
-                        "order: %"PRIsVALUE, order);
+                        "order: %+"PRIsVALUE, order);
             }
         }
     }
@@ -1690,7 +1690,7 @@ exc_inspect(VALUE exc)
     rb_str_buf_append(str, klass);
 
     if (RTEST(rb_str_include(exc, rb_str_new2("\n")))) {
-        rb_str_catf(str, ":%"PRIsVALUE, exc);
+        rb_str_catf(str, ":%+"PRIsVALUE, exc);
     }
     else {
         rb_str_buf_cat(str, ": ", 2);

@@ -1751,7 +1751,7 @@ rb_range_beg_len(VALUE range, long *begp, long *lenp, long len, int err)
 
     VALUE res = rb_range_component_beg_len(b, e, excl, begp, lenp, len, err);
     if (NIL_P(res) && err) {
-        rb_raise(rb_eRangeError, "%"PRIsVALUE" out of range", range);
+        rb_raise(rb_eRangeError, "%+"PRIsVALUE" out of range", range);
     }
 
     return res;

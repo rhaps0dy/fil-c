@@ -2102,7 +2102,7 @@ st_index_t
 st_numhash(st_data_t n)
 {
     enum {s1 = 11, s2 = 3};
-    return (st_index_t)((n>>s1|(n<<s2)) ^ (n>>s2));
+    return ((st_index_t)n>>s1|((st_index_t)n<<s2)) ^ ((st_index_t)n>>s2);
 }
 
 #ifdef RUBY

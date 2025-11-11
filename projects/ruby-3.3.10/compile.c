@@ -7021,7 +7021,7 @@ iseq_compile_pattern_each(rb_iseq_t *iseq, LINK_ANCHOR *const ret, const NODE *c
                         ADD_INSN(ret, line_node, dup);
                         ADD_INSNL(ret, line_node, branchif, match_succeeded);
 
-                        ADD_INSN1(ret, line_node, putobject, rb_str_freeze(rb_sprintf("key not found: %"PRIsVALUE, key))); // (4)
+                        ADD_INSN1(ret, line_node, putobject, rb_str_freeze(rb_sprintf("key not found: %+"PRIsVALUE, key))); // (4)
                         ADD_INSN1(ret, line_node, setn, INT2FIX(base_index + CASE3_BI_OFFSET_ERROR_STRING + 2 /* (3), (4) */));
                         ADD_INSN1(ret, line_node, putobject, Qtrue); // (5)
                         ADD_INSN1(ret, line_node, setn, INT2FIX(base_index + CASE3_BI_OFFSET_KEY_ERROR_P + 3 /* (3), (4), (5) */));
@@ -10713,7 +10713,7 @@ get_exception_sym2type(VALUE sym)
     if (sym == symBreak)  return CATCH_TYPE_BREAK;
     if (sym == symRedo)   return CATCH_TYPE_REDO;
     if (sym == symNext)   return CATCH_TYPE_NEXT;
-    rb_raise(rb_eSyntaxError, "invalid exception symbol: %"PRIsVALUE, sym);
+    rb_raise(rb_eSyntaxError, "invalid exception symbol: %+"PRIsVALUE, sym);
     return 0;
 }
 
@@ -11056,7 +11056,7 @@ int_param(int *dst, VALUE param, VALUE sym)
         return TRUE;
     }
     else if (!NIL_P(val)) {
-        rb_raise(rb_eTypeError, "invalid %"PRIsVALUE" Fixnum: %"PRIsVALUE,
+        rb_raise(rb_eTypeError, "invalid %+"PRIsVALUE" Fixnum: %+"PRIsVALUE,
                  sym, val);
     }
     return FALSE;
@@ -11119,7 +11119,7 @@ iseq_build_kw(rb_iseq_t *iseq, VALUE params, VALUE keywords)
             default_val = RARRAY_AREF(key, 1);
             break;
           default:
-            rb_raise(rb_eTypeError, "keyword default has unsupported len %"PRIsVALUE, key);
+            rb_raise(rb_eTypeError, "keyword default has unsupported len %+"PRIsVALUE, key);
         }
         ids[i] = SYM2ID(sym);
         dvs[j] = default_val;
@@ -11245,7 +11245,7 @@ rb_iseq_build_from_ary(rb_iseq_t *iseq, VALUE misc, VALUE locals, VALUE params,
         }
     }
     else if (!NIL_P(arg_opt_labels)) {
-        rb_raise(rb_eTypeError, ":opt param is not an array: %"PRIsVALUE,
+        rb_raise(rb_eTypeError, ":opt param is not an array: %+"PRIsVALUE,
                  arg_opt_labels);
     }
 
@@ -11253,7 +11253,7 @@ rb_iseq_build_from_ary(rb_iseq_t *iseq, VALUE misc, VALUE locals, VALUE params,
         ISEQ_BODY(iseq)->param.keyword = iseq_build_kw(iseq, params, keywords);
     }
     else if (!NIL_P(keywords)) {
-        rb_raise(rb_eTypeError, ":keywords param is not an array: %"PRIsVALUE,
+        rb_raise(rb_eTypeError, ":keywords param is not an array: %+"PRIsVALUE,
                  keywords);
     }
 

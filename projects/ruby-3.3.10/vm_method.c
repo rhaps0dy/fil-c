@@ -300,10 +300,10 @@ rb_clear_method_cache(VALUE klass_or_module, ID mid)
         if (FL_TEST(module, RMODULE_IS_REFINEMENT)) {
             VALUE refined_class = rb_refinement_module_get_refined_class(module);
             rb_clear_method_cache(refined_class, mid);
-            rb_class_foreach_subclass(refined_class, clear_iclass_method_cache_by_id_for_refinements, mid);
+            rb_class_foreach_subclass(refined_class, clear_iclass_method_cache_by_id_for_refinements, (VALUE)mid);
             rb_clear_all_refinement_method_cache();
         }
-        rb_class_foreach_subclass(module, clear_iclass_method_cache_by_id, mid);
+        rb_class_foreach_subclass(module, clear_iclass_method_cache_by_id, (VALUE)mid);
     }
     else {
         clear_method_cache_by_id_in_class(klass_or_module, mid);
@@ -347,7 +347,7 @@ vm_ci_hash(VALUE v)
     h = rb_hash_uint(h, ci->argc);
     if (ci->kwarg) {
         for (int i = 0; i < ci->kwarg->keyword_len; i++) {
-            h = rb_hash_uint(h, ci->kwarg->keywords[i]);
+            h = (st_index_t)rb_hash_uint(h, ci->kwarg->keywords[i]);
         }
     }
     return h;
@@ -2358,7 +2358,7 @@ rb_mod_alias_method(VALUE mod, VALUE newname, VALUE oldname)
     if (!oldid) {
         rb_print_undef_str(mod, oldname);
     }
-    VALUE id = rb_to_id(newname);
+    ID id = rb_to_id(newname);
     rb_alias(mod, id, oldid);
     return ID2SYM(id);
 }
@@ -2830,7 +2830,7 @@ call_method_entry(rb_execution_context_t *ec, VALUE defined_class, VALUE obj, ID
                   const rb_callable_method_entry_t *cme, int argc, const VALUE *argv, int kw_splat)
 {
     VALUE passed_block_handler = vm_passed_block_handler(ec);
-    VALUE result = rb_vm_call_kw(ec, obj, id, argc, argv, cme, kw_splat);
+    VALUE result = rb_vm_call_kw(ec, obj, (VALUE)id, argc, argv, cme, kw_splat);
     vm_passed_block_handler_set(ec, passed_block_handler);
     return result;
 }

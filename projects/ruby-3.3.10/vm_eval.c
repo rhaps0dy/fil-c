@@ -164,7 +164,7 @@ vm_call0_cfunc_with_frame(rb_execution_context_t* ec, struct rb_calling_info *ca
     {
         rb_control_frame_t *reg_cfp = ec->cfp;
 
-        vm_push_frame(ec, 0, frame_flags, recv,
+        vm_push_frame(ec, 0, (VALUE)frame_flags, recv,
                       block_handler, (VALUE)me,
                       0, reg_cfp->sp, 0, 0);
 
@@ -327,7 +327,7 @@ vm_call0_body(rb_execution_context_t *ec, struct rb_calling_info *calling, const
 VALUE
 rb_vm_call_kw(rb_execution_context_t *ec, VALUE recv, VALUE id, int argc, const VALUE *argv, const rb_callable_method_entry_t *me, int kw_splat)
 {
-    return rb_vm_call0(ec, recv, id, argc, argv, me, kw_splat);
+    return rb_vm_call0(ec, recv, (VALUE)id, argc, argv, me, kw_splat);
 }
 
 static inline VALUE
@@ -351,7 +351,7 @@ vm_call_super(rb_execution_context_t *ec, int argc, const VALUE *argv, int kw_sp
     if (!me) {
         return method_missing(ec, recv, id, argc, argv, MISSING_SUPER, kw_splat);
     }
-    return rb_vm_call_kw(ec, recv, id, argc, argv, me, kw_splat);
+    return rb_vm_call_kw(ec, recv, (VALUE)id, argc, argv, me, kw_splat);
 }
 
 VALUE
@@ -442,10 +442,10 @@ cc_new(VALUE klass, ID mid, int argc, const rb_callable_method_entry_t *cme)
     return cc;
 }
 
-static VALUE
+static uintptr_t
 gccct_hash(VALUE klass, ID mid)
 {
-    return (klass >> 3) ^ (VALUE)mid;
+    return ((uintptr_t)klass >> 3) ^ (uintptr_t)mid;
 }
 
 NOINLINE(static const struct rb_callcache *gccct_method_search_slowpath(rb_vm_t *vm, VALUE klass, ID mid, int argc, unsigned int index));

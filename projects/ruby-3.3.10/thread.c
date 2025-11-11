@@ -1115,8 +1115,8 @@ thread_join(rb_thread_t *target_th, VALUE timeout, rb_hrtime_t *limit)
         VALUE err = target_th->ec->errinfo;
 
         if (FIXNUM_P(err)) {
-            switch (err) {
-              case INT2FIX(TAG_FATAL):
+            switch ((uintptr_t)err) {
+              case (uintptr_t)INT2FIX(TAG_FATAL):
                 RUBY_DEBUG_LOG("terminated target_th:%u status:%s", rb_th_serial(target_th), thread_status_name(target_th, TRUE));
 
                 /* OK. killed. */
@@ -4952,7 +4952,7 @@ rb_thread_shield_waiting_inc(VALUE b)
     if (w > THREAD_SHIELD_WAITING_MAX)
         rb_raise(rb_eRuntimeError, "waiting count overflow");
     RBASIC(b)->flags &= ~THREAD_SHIELD_WAITING_MASK;
-    RBASIC(b)->flags |= ((VALUE)w << THREAD_SHIELD_WAITING_SHIFT);
+    RBASIC(b)->flags |= ((uintptr_t)w << THREAD_SHIELD_WAITING_SHIFT);
 }
 
 static inline void
@@ -4962,7 +4962,7 @@ rb_thread_shield_waiting_dec(VALUE b)
     if (!w) rb_raise(rb_eRuntimeError, "waiting count underflow");
     w--;
     RBASIC(b)->flags &= ~THREAD_SHIELD_WAITING_MASK;
-    RBASIC(b)->flags |= ((VALUE)w << THREAD_SHIELD_WAITING_SHIFT);
+    RBASIC(b)->flags |= ((uintptr_t)w << THREAD_SHIELD_WAITING_SHIFT);
 }
 
 VALUE

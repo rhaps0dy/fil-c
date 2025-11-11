@@ -710,7 +710,7 @@ setup_parameters_complex(rb_execution_context_t * const ec, const rb_iseq_t * co
     if (ISEQ_BODY(iseq)->param.flags.has_rest) {
         args_setup_rest_parameter(args, locals + ISEQ_BODY(iseq)->param.rest_start);
         VALUE ary = *(locals + ISEQ_BODY(iseq)->param.rest_start);
-        VALUE index = RARRAY_LEN(ary) - 1;
+        uintptr_t index = RARRAY_LEN(ary) - 1;
         if (splat_flagged_keyword_hash &&
             !ISEQ_BODY(iseq)->param.flags.ruby2_keywords &&
             !ISEQ_BODY(iseq)->param.flags.has_kw &&
@@ -779,7 +779,7 @@ raise_argument_error(rb_execution_context_t *ec, const rb_iseq_t *iseq, const VA
     VALUE at;
 
     if (iseq) {
-        vm_push_frame(ec, iseq, VM_FRAME_MAGIC_DUMMY | VM_ENV_FLAG_LOCAL, Qnil /* self */,
+        vm_push_frame(ec, iseq, (VALUE)(VM_FRAME_MAGIC_DUMMY | VM_ENV_FLAG_LOCAL), Qnil /* self */,
                       VM_BLOCK_HANDLER_NONE /* specval*/, Qfalse /* me or cref */,
                       ISEQ_BODY(iseq)->iseq_encoded,
                       ec->cfp->sp, 0, 0 /* stack_max */);

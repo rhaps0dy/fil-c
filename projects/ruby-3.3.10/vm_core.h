@@ -232,7 +232,7 @@ union ic_serial_entry {
 
 // imemo_constcache
 struct iseq_inline_constant_cache_entry {
-    VALUE flags;
+    uintptr_t flags;
 
     VALUE value;              // v0
     VALUE _unused1;           // v1

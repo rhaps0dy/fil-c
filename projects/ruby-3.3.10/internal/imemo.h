@@ -59,7 +59,7 @@ struct vm_svar {
 
 /*! THROW_DATA */
 struct vm_throw_data {
-    VALUE flags;
+    uintptr_t flags;
     VALUE reserved;
     const VALUE throw_obj;
     const struct rb_control_frame_struct *catch_frame;

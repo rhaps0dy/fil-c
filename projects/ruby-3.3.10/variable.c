@@ -320,11 +320,11 @@ static VALUE
 make_temporary_path(VALUE obj, VALUE klass)
 {
     VALUE path;
-    switch (klass) {
-      case Qnil:
+    switch ((uintptr_t)klass) {
+      case (uintptr_t)Qnil:
         path = rb_sprintf("#<Class:%p>", (void*)obj);
         break;
-      case Qfalse:
+      case (uintptr_t)Qfalse:
         path = rb_sprintf("#<Module:%p>", (void*)obj);
         break;
       default:
@@ -1964,7 +1964,7 @@ rb_ivar_defined(VALUE obj, ID id)
           }
         }
 
-        if (!table || !rb_st_lookup(table, id, &idx)) {
+        if (!table || !rb_st_lookup(table, (st_data_t)id, &idx)) {
             return Qfalse;
         }
 
@@ -2737,7 +2737,7 @@ autoload_delete(VALUE module, ID name)
 {
     RUBY_ASSERT_CRITICAL_SECTION_ENTER();
 
-    st_data_t load = 0, key = name;
+    st_data_t load = 0, key = (st_data_t)name;
 
     RUBY_ASSERT(RB_TYPE_P(module, T_CLASS) || RB_TYPE_P(module, T_MODULE));
 
@@ -3982,7 +3982,7 @@ static void
 check_for_cvar_table(VALUE subclass, VALUE key)
 {
     // Must not check ivar on ICLASS
-    if (!RB_TYPE_P(subclass, T_ICLASS) && RTEST(rb_ivar_defined(subclass, key))) {
+    if (!RB_TYPE_P(subclass, T_ICLASS) && RTEST(rb_ivar_defined(subclass, (ID)key))) {
         RB_DEBUG_COUNTER_INC(cvar_class_invalidate);
         ruby_vm_global_cvar_state++;
         return;
@@ -4040,7 +4040,7 @@ rb_cvar_set(VALUE klass, ID id, VALUE val)
     if (result == 0) {
         if (RB_TYPE_P(target, T_CLASS)) {
             if (RCLASS_SUBCLASSES(target)) {
-                rb_class_foreach_subclass(target, check_for_cvar_table, id);
+                rb_class_foreach_subclass(target, check_for_cvar_table, (VALUE)id);
             }
         }
     }

@@ -750,16 +750,16 @@ rb_struct_initialize_m(int argc, const VALUE *argv, VALUE self)
     }
 
     bool keyword_init = false;
-    switch (rb_struct_s_keyword_init(klass)) {
+    switch ((uintptr_t)rb_struct_s_keyword_init(klass)) {
       default:
         if (argc > 1 || !RB_TYPE_P(argv[0], T_HASH)) {
             rb_error_arity(argc, 0, 0);
         }
         keyword_init = true;
         break;
-      case Qfalse:
+      case (uintptr_t)Qfalse:
         break;
-      case Qnil:
+      case (uintptr_t)Qnil:
         if (argc > 1 || !RB_TYPE_P(argv[0], T_HASH)) {
             break;
         }
@@ -811,7 +811,7 @@ struct_alloc(VALUE klass)
 {
     long n = num_members(klass);
     size_t embedded_size = offsetof(struct RStruct, as.ary) + (sizeof(VALUE) * n);
-    VALUE flags = T_STRUCT | (RGENGC_WB_PROTECTED_STRUCT ? FL_WB_PROTECTED : 0);
+    uintptr_t flags = T_STRUCT | (RGENGC_WB_PROTECTED_STRUCT ? FL_WB_PROTECTED : 0);
 
     if (n > 0 && rb_gc_size_allocatable_p(embedded_size)) {
         flags |= n << RSTRUCT_EMBED_LEN_SHIFT;
@@ -1435,7 +1435,7 @@ rb_struct_hash(VALUE s)
     st_index_t h;
     VALUE n;
 
-    h = rb_hash_start(rb_hash(rb_obj_class(s)));
+    h = rb_hash_start((st_index_t)rb_hash(rb_obj_class(s)));
     len = RSTRUCT_LEN(s);
     for (i = 0; i < len; i++) {
         n = rb_hash(RSTRUCT_GET(s, i));

@@ -2128,7 +2128,7 @@ INSN_ENTRY(defineclass)
     rb_iseq_check(class_iseq);
 
     /* enter scope */
-    vm_push_frame(ec, class_iseq, VM_FRAME_MAGIC_CLASS | VM_ENV_FLAG_LOCAL, klass,
+    vm_push_frame(ec, class_iseq, (VALUE)(VM_FRAME_MAGIC_CLASS | VM_ENV_FLAG_LOCAL), klass,
                   GET_BLOCK_HANDLER(),
                   (VALUE)vm_cref_push(ec, klass, NULL, FALSE, FALSE),
                   ISEQ_BODY(class_iseq)->iseq_encoded, GET_SP(),

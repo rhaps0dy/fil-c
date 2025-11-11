@@ -3756,7 +3756,7 @@ invalid_radix(int base)
 static inline void
 invalid_integer(VALUE s)
 {
-    rb_raise(rb_eArgError, "invalid value for Integer(): %"PRIsVALUE, s);
+    rb_raise(rb_eArgError, "invalid value for Integer(): %+"PRIsVALUE, s);
 }
 
 static int

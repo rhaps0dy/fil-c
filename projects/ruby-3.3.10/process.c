@@ -2300,7 +2300,7 @@ check_exec_options_i(st_data_t st_key, st_data_t st_val, st_data_t arg)
     VALUE execarg_obj = (VALUE)arg;
     if (rb_execarg_addopt(execarg_obj, key, val) != ST_CONTINUE) {
         if (SYMBOL_P(key))
-            rb_raise(rb_eArgError, "wrong exec option symbol: %"PRIsVALUE,
+            rb_raise(rb_eArgError, "wrong exec option symbol: % "PRIsVALUE,
                      key);
         rb_raise(rb_eArgError, "wrong exec option");
     }
@@ -5537,7 +5537,7 @@ rlimit_resource_type(VALUE rtype)
     if (r != -1)
         return r;
 
-    rb_raise(rb_eArgError, "invalid resource name: %"PRIsVALUE, rtype);
+    rb_raise(rb_eArgError, "invalid resource name: % "PRIsVALUE, rtype);
 
     UNREACHABLE_RETURN(-1);
 }
@@ -8112,7 +8112,7 @@ ruby_real_ms_time(void)
 
 #define clock_failed(name, err, arg) do { \
         int clock_error = (err); \
-        rb_syserr_fail_str(clock_error, rb_sprintf("clock_" name "(%"PRIsVALUE")", (arg))); \
+        rb_syserr_fail_str(clock_error, rb_sprintf("clock_" name "(%+"PRIsVALUE")", (arg))); \
     } while (0)
 
 /*
