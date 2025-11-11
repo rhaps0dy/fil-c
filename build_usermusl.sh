@@ -30,7 +30,7 @@ set -x
 
 cd projects/usermusl
 
-CC="$CCPREFIX$PWD/../../build/bin/clang" ./configure --prefix=$PWD/../../pizfix
+LDFLAGS="-B/usr/lib/gcc/x86_64-alpine-linux-musl/14.2.0/" CC="$CCPREFIX$PWD/../../build/bin/clang" ./configure --prefix=$PWD/../../pizfix
 $MAKE clean
 $MAKE -j $NCPU
 $MAKE install
